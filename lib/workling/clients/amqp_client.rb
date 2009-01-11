@@ -11,7 +11,10 @@ module Workling
       # starts the client. 
       def connect
         begin
-          @amq = MQ.new
+          host, port = Workling.config[:listens_on].split(':', 2)
+          other_opts = Workling.config[:amqp_options] || {}
+          options = {:host => host || 'localhost', :port => (port || 5672).to_i}.merge(other_opts)
+          @amq = MQ.new(AMQP.start(options))
         rescue
           raise WorklingError.new("couldn't start amq client. if you're running this in a server environment, then make sure the server is evented (ie use thin or evented mongrel, not normal mongrel.)")
         end
