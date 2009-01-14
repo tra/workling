@@ -11,12 +11,13 @@ module Workling
       # starts the client. 
       def connect
         begin
+          @options = (Workling.config[:amqp_options] || {}).symbolize_keys
+          # host and port only needed for AMQP.start
           host, port = Workling.config[:listens_on].split(':', 2)
-          other_opts = Workling.config[:amqp_options] || {}
-          options = {:host => host || 'localhost', :port => (port || 5672).to_i}.merge(other_opts)
-          @amq = MQ.new(AMQP.start(options))
+          start_opts = {:host => host || 'localhost', :port => (port || 5672).to_i}.merge(@options)
+          @amq = MQ.new(AMQP.start(start_opts))
         rescue
-          raise WorklingError.new("couldn't start amq client. if you're running this in a server environment, then make sure the server is evented (ie use thin or evented mongrel, not normal mongrel.)")
+          raise WorklingError.new("couldn't start amq client. if you're running this in a server environment, then make sure the server is evented (ie use thin or evented mongrel, not normal mongrel.): #{$!}")
         end
       end
       
@@ -26,15 +27,16 @@ module Workling
       
       # subscribe to a queue
       def subscribe(key)
-        @amq.queue(key).subscribe do |value|
+        @amq.queue(key, @options).subscribe(@options) do |value|
           yield YAML.load(value)
         end
       end
       
       # request and retrieve work
-      def retrieve(key); @amq.queue(key); end
+      def retrieve(key); @amq.queue(key, @options); end
       def request(key, value)
-        @amq.queue(key).publish(YAML.dump(value))
+        RAILS_DEFAULT_LOGGER.debug("AMQP options = #{@options.inspect}")
+        @amq.queue(key, @options).publish(YAML.dump(value), @options)
       end
     end
   end
