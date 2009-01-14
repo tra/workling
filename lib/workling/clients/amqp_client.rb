@@ -35,7 +35,6 @@ module Workling
       # request and retrieve work
       def retrieve(key); @amq.queue(key, @options); end
       def request(key, value)
-        RAILS_DEFAULT_LOGGER.debug("AMQP options = #{@options.inspect}")
         @amq.queue(key, @options).publish(YAML.dump(value), @options)
       end
     end
