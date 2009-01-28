@@ -21,7 +21,11 @@ module Workling
             connect do
               routes.each do |route|
                 @client.subscribe(route) do |args|
-                  run(route, args)
+                  begin
+                    run(route, args)
+                  rescue
+                    logger.error("EventmachineSubscriber listen error on #{route}: #{$!}")
+                  end
                 end
               end
             end

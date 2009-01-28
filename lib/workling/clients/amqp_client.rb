@@ -35,6 +35,7 @@ module Workling
       # request and retrieve work
       def retrieve(key); @amq.queue(key, @options); end
       def request(key, value)
+        logger.info("> publishing to #{key}: #{value.inspect}")
         @amq.queue(key, @options).publish(YAML.dump(value), @options)
       end
     end

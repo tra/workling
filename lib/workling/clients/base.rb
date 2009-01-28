@@ -8,6 +8,9 @@ module Workling
   module Clients
     class Base
 
+      # returns the Workling::Base.logger
+      def logger; Workling::Base.logger; end
+
       #
       #  Requests a job on the broker.
       #

@@ -40,7 +40,7 @@ module Workling
         self.send(method, options)
       rescue Exception => e
         raise e if e.kind_of? Workling::WorklingError
-        logger.error "WORKLING ERROR: runner could not invoke #{ self.class }:#{ method } with #{ options.inspect }. error was: #{ e.inspect }\n #{ e.backtrace.join("\n") }"
+        logger.error "WORKLING ERROR: runner could not invoke #{ self.class }:#{ method } with #{ options.inspect }. error was: #{ e.class }:#{ e.message }\n #{ e.backtrace.join("\n") }"
       end
     end    
   
