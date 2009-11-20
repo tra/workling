@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'workling/remote/invokers/base'
 
 #
@@ -98,9 +99,9 @@ module Workling
               #
               @mutex.synchronize do 
                 unless ActiveRecord::Base.connection.active?  # Keep MySQL connection alive
-                  unless ActiveRecord::Base.connection.reconnect!
+                  ActiveRecord::Base.connection.reconnect!
+                  unless ActiveRecord::Base.connection.active?
                     logger.fatal("Failed - Database not available!")
-                    break
                   end
                 end
               end
